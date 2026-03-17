@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="META BRAIN">
+<meta name="theme-color" content="#000000">
+<title>NEXUS META BRAIN</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --void: #020204;
+  --deep: #06080f;
+  --panel: #0b0f1c;
+  --card: #0f1623;
+  --border: #162035;
+  --cyan: #00d4ff;
+  --cyan-dim: rgba(0,212,255,0.1);
+  --gold: #f5c842;
+  --gold-dim: rgba(245,200,66,0.12);
+  --green: #00ff9d;
+  --green-dim: rgba(0,255,157,0.1);
+  --red: #ff3b5c;
+  --red-dim: rgba(255,59,92,0.1);
+  --purple: #8b5cf6;
+  --purple-dim: rgba(139,92,246,0.1);
+  --silver: #8899aa;
+  --ghost: #3d4f63;
+  --white: #e8f0fa;
+  --fd: 'Orbitron', monospace;
+  --fb: 'Rajdhani', sans-serif;
+  --fm: 'Share Tech Mono', monospace;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--void); color:var(--white); font-family:var(--fb); min-height:100vh; overflow-x:hidden; }
+body::before {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background: radial-gradient(ellipse at 20% 0%, rgba(0,212,255,0.04) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 100%, rgba(139,92,246,0.04) 0%, transparent 60%);
+}
+
+.nav {
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  background:rgba(2,2,4,0.96); backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  height:54px; display:flex; align-items:center; padding:0 14px; gap:10px;
+}
+.nav-logo {
+  width:34px; height:34px; border-radius:8px; flex-shrink:0;
+  background:linear-gradient(135deg, var(--gold), var(--purple));
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--fd); font-size:13px; font-weight:900; color:#000;
+}
+.nav-title { font-family:var(--fd); font-size:12px; font-weight:700; letter-spacing:2px; color:var(--gold); }
+.nav-sub { font-size:10px; color:var(--ghost); font-family:var(--fm); letter-spacing:1px; }
+.nav-right { margin-left:auto; display:flex; align-items:center; gap:10px; }
+.sync-dot { width:7px; height:7px; border-radius:50%; background:var(--green); animation:blink 2s infinite; }
+@keyframes blink { 0%,100%{opacity:1;box-shadow:0 0 5px var(--green)} 50%{opacity:.3;box-shadow:none} }
+.nav-clock { font-family:var(--fm); font-size:11px; color:var(--silver); }
+.kill-btn {
+  background:var(--red-dim); border:1px solid var(--red); color:var(--red);
+  border-radius:5px; padding:3px 10px; font-family:var(--fb); font-size:11px;
+  font-weight:700; letter-spacing:1px; cursor:pointer; transition:all .2s;
+}
+.kill-btn:hover { background:var(--red); color:#fff; }
+.kill-btn.ACTIVE { background:var(--red); color:#fff; animation:pulse-red 1s infinite; }
+@keyframes pulse-red { 0%,100%{opacity:1} 50%{opacity:.6} }
+
+.tabs {
+  position:fixed; top:54px; left:0; right:0; z-index:99;
+  background:rgba(2,2,4,0.96); backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  display:flex; overflow-x:auto; scrollbar-width:none; padding:0 6px;
+}
+.tabs::-webkit-scrollbar { display:none; }
+.tab {
+  flex-shrink:0; height:40px; padding:0 14px;
+  display:flex; align-items:center; gap:5px;
+  font-family:var(--fb); font-size:11px; font-weight:600; letter-spacing:1px;
+  color:var(--ghost); cursor:pointer;
+  border-bottom:2px solid transparent; transition:all .2s; white-space:nowrap;
+}
+.tab:hover { color:var(--silver); }
+.tab.active { color:var(--gold); border-bottom-color:var(--gold); }
+
+.main { margin-top:94px; padding:10px; position:relative; z-index:1; }
+.screen { display:none; }
+.screen.active { display:block; }
+
+/* EMPIRE SUMMARY BAR */
+.empire-bar {
+  background:linear-gradient(135deg, rgba(245,200,66,0.06), rgba(139,92,246,0.06));
+  border:1px solid var(--border); border-radius:10px;
+  padding:12px 14px; margin-bottom:10px;
+  display:grid; grid-template-columns:repeat(4,1fr); gap:8px;
+  position:relative; overflow:hidden;
+}
+.empire-bar::before {
+  content:''; position:absolute; top:-1px; left:15%; right:15%; height:1px;
+  background:linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.es { text-align:center; }
+.es-label { font-size:8px; font-weight:600; letter-spacing:1.5px; color:var(--ghost); font-family:var(--fm); text-transform:uppercase; margin-bottom:3px; }
+.es-val { font-family:var(--fd); font-size:17px; font-weight:700; }
+.es-val.pos { color:var(--green); }
+.es-val.neg { color:var(--red); }
+.es-val.gold { color:var(--gold); }
+.es-val.cyan { color:var(--cyan); }
+
+/* STATUS BADGES */
+.badge { display:inline-block; font-family:var(--fm); font-size:9px; font-weight:700; letter-spacing:1px; padding:2px 7px; border-radius:4px; }
+.badge.ONLINE { background:var(--green-dim); color:var(--green); }
+.badge.OFFLINE { background:var(--red-dim); color:var(--red); }
+.badge.UNKNOWN { background:rgba(61,79,99,.3); color:var(--ghost); }
+.badge.KILL { background:var(--red); color:#fff; }
+.badge.RECOVERY { background:var(--gold-dim); color:var(--gold); }
+
+/* BOT CARDS */
+.fleet-grid { display:flex; flex-direction:column; gap:8px; margin-bottom:10px; }
+.bot-card {
+  background:var(--card); border:1px solid var(--border); border-radius:10px;
+  padding:12px; transition:border-color .3s;
+}
+.bot-card.online { border-left:3px solid var(--green); }
+.bot-card.offline { border-left:3px solid var(--red); }
+.bot-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.bot-name { font-family:var(--fd); font-size:12px; font-weight:700; letter-spacing:2px; color:var(--gold); }
+.bot-regime { font-family:var(--fm); font-size:9px; color:var(--purple); padding:1px 6px; background:var(--purple-dim); border-radius:3px; }
+.bot-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:5px; }
+.bot-stat { background:rgba(0,0,0,.35); border-radius:5px; padding:5px; text-align:center; }
+.bot-stat-label { font-size:8px; color:var(--ghost); font-family:var(--fm); letter-spacing:1px; margin-bottom:2px; }
+.bot-stat-value { font-family:var(--fm); font-size:12px; font-weight:600; }
+.heat-bar { height:2px; background:var(--border); border-radius:1px; margin-top:8px; overflow:hidden; }
+.heat-fill { height:100%; border-radius:1px; transition:width .5s, background .5s; }
+
+/* ALLOCATION */
+.alloc-card {
+  background:var(--card); border:1px solid var(--border); border-radius:10px;
+  padding:12px; margin-bottom:10px;
+}
+.alloc-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.alloc-row:last-child { margin-bottom:0; }
+.alloc-name { font-family:var(--fd); font-size:10px; font-weight:700; letter-spacing:1px; color:var(--gold); width:100px; flex-shrink:0; }
+.alloc-bar-wrap { flex:1; height:8px; background:var(--border); border-radius:4px; overflow:hidden; }
+.alloc-bar { height:100%; border-radius:4px; transition:width .8s; }
+.alloc-pct { font-family:var(--fm); font-size:11px; color:var(--silver); width:40px; text-align:right; flex-shrink:0; }
+.alloc-cap { font-family:var(--fm); font-size:10px; color:var(--ghost); width:70px; text-align:right; flex-shrink:0; }
+
+/* CORRELATION */
+.sector-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:6px; margin-bottom:10px; }
+.sector-card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:10px; }
+.sector-name { font-size:10px; font-weight:700; letter-spacing:1px; color:var(--silver); font-family:var(--fm); margin-bottom:5px; text-transform:uppercase; }
+.sector-pct { font-family:var(--fd); font-size:20px; font-weight:700; }
+.sector-bar { height:3px; background:var(--border); border-radius:2px; margin-top:5px; overflow:hidden; }
+.sector-fill { height:100%; border-radius:2px; }
+
+.scenario-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:6px; margin-bottom:10px; }
+.scenario-card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:10px; text-align:center; }
+.scenario-label { font-size:9px; color:var(--ghost); font-family:var(--fm); letter-spacing:1px; margin-bottom:4px; }
+.scenario-value { font-family:var(--fd); font-size:16px; font-weight:700; }
+
+/* REGISTRY */
+.registry-row { display:flex; align-items:center; gap:8px; padding:6px 10px; background:var(--card); border:1px solid var(--border); border-radius:6px; margin-bottom:4px; }
+.reg-ticker { font-family:var(--fm); font-size:12px; font-weight:700; color:var(--cyan); width:60px; }
+.reg-bot { font-size:11px; color:var(--silver); flex:1; }
+.reg-type { font-size:9px; font-family:var(--fm); padding:1px 6px; border-radius:3px; }
+.reg-type.analyzing { background:var(--cyan-dim); color:var(--cyan); }
+.reg-type.holding { background:var(--green-dim); color:var(--green); }
+
+/* INTELLIGENCE */
+.intel-item { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:8px 12px; margin-bottom:5px; display:flex; align-items:flex-start; gap:8px; }
+.intel-item.CRITICAL { border-left:3px solid var(--red); background:var(--red-dim); }
+.intel-item.WARNING { border-left:3px solid var(--gold); background:var(--gold-dim); }
+.intel-item.INFO { border-left:3px solid var(--cyan); }
+.intel-time { font-family:var(--fm); font-size:9px; color:var(--ghost); flex-shrink:0; margin-top:1px; }
+.intel-msg { font-size:12px; color:var(--silver); flex:1; line-height:1.4; }
+
+/* SECTION HEADERS */
+.sh { display:flex; align-items:center; gap:7px; margin-bottom:7px; padding-bottom:5px; border-bottom:1px solid var(--border); }
+.sh-icon { font-size:13px; }
+.sh-title { font-family:var(--fd); font-size:10px; font-weight:700; letter-spacing:2px; color:var(--silver); text-transform:uppercase; flex:1; }
+.sh-badge { font-family:var(--fm); font-size:9px; padding:1px 6px; background:var(--gold-dim); color:var(--gold); border-radius:3px; }
+
+/* ACTION BUTTONS */
+.action-row { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-bottom:10px; }
+.btn { background:var(--card); border:1px solid var(--border); border-radius:7px; padding:10px; color:var(--silver); font-family:var(--fb); font-size:11px; font-weight:600; letter-spacing:.5px; cursor:pointer; display:flex; align-items:center; gap:7px; transition:all .2s; }
+.btn:hover { border-color:var(--gold); color:var(--gold); }
+.btn .bi { font-size:14px; }
+
+/* RECOVERY PANEL */
+.recovery-panel {
+  background:linear-gradient(135deg, var(--gold-dim), rgba(0,0,0,.2));
+  border:1px solid var(--gold); border-radius:10px; padding:14px;
+  margin-bottom:10px;
+}
+.recovery-title { font-family:var(--fd); font-size:11px; font-weight:700; letter-spacing:2px; color:var(--gold); margin-bottom:5px; }
+.recovery-desc { font-size:11px; color:var(--silver); line-height:1.5; }
+
+/* LOADING / EMPTY */
+.loading { text-align:center; padding:30px 20px; color:var(--ghost); font-family:var(--fm); font-size:11px; letter-spacing:1px; }
+.loading::before { content:''; display:block; width:28px; height:28px; border:2px solid var(--border); border-top-color:var(--gold); border-radius:50%; margin:0 auto 10px; animation:spin 1s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.empty { text-align:center; padding:24px 16px; color:var(--ghost); font-size:11px; line-height:1.6; }
+.empty-icon { font-size:28px; margin-bottom:6px; }
+
+::-webkit-scrollbar { width:3px; height:3px; }
+::-webkit-scrollbar-track { background:var(--void); }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo">M</div>
+  <div>
+    <div class="nav-title">NEXUS META BRAIN</div>
+    <div class="nav-sub">FLEET COMMANDER V4.0</div>
+  </div>
+  <div class="nav-right">
+    <div class="sync-dot" id="syncDot"></div>
+    <div class="nav-clock" id="clock">--:--:--</div>
+    <button class="kill-btn" id="killBtn" onclick="toggleKill()">☠️ KILL</button>
+  </div>
+</nav>
+
+<div class="tabs">
+  <div class="tab active" onclick="show('fleet')" id="t-fleet"><span>🔱</span> FLEET</div>
+  <div class="tab" onclick="show('allocation')" id="t-allocation"><span>💰</span> CAPITAL</div>
+  <div class="tab" onclick="show('correlation')" id="t-correlation"><span>🔗</span> RISK</div>
+  <div class="tab" onclick="show('registry')" id="t-registry"><span>📡</span> REGISTRY</div>
+  <div class="tab" onclick="show('intel')" id="t-intel"><span>🧠</span> INTEL</div>
+</div>
+
+<div class="main">
+
+  <!-- FLEET TAB -->
+  <div class="screen active" id="s-fleet">
+    <div class="empire-bar" id="empireBar">
+      <div class="es"><div class="es-label">EMPIRE P&L</div><div class="es-val" id="ePnl">$0</div></div>
+      <div class="es"><div class="es-label">OPEN P&L</div><div class="es-val cyan" id="eOpen">$0</div></div>
+      <div class="es"><div class="es-label">DEPLOYED</div><div class="es-val gold" id="eDeployed">$0</div></div>
+      <div class="es"><div class="es-label">DRAWDOWN</div><div class="es-val" id="eDrawdown">0%</div></div>
+    </div>
+
+    <div id="statusBadges" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;"></div>
+
+    <div class="sh"><span class="sh-icon">🤖</span><div class="sh-title">FLEET STATUS</div><div class="sh-badge" id="fleetCount">0 BOTS</div></div>
+    <div class="fleet-grid" id="fleetGrid"><div class="loading"></div></div>
+
+    <div class="action-row">
+      <button class="btn" onclick="forceSync()"><span class="bi">⚡</span> Force Sync</button>
+      <button class="btn" onclick="runIntel()"><span class="bi">🧠</span> Run Intel</button>
+      <button class="btn" onclick="rebalance()"><span class="bi">💰</span> Rebalance</button>
+      <button class="btn" onclick="show('intel')"><span class="bi">📡</span> View Intel</button>
+    </div>
+  </div>
+
+  <!-- CAPITAL TAB -->
+  <div class="screen" id="s-allocation">
+    <div class="empire-bar" style="grid-template-columns:repeat(3,1fr);">
+      <div class="es"><div class="es-label">TOTAL CAPITAL</div><div class="es-val gold" id="aTotal">$0</div></div>
+      <div class="es"><div class="es-label">DEPLOYED</div><div class="es-val cyan" id="aDeployed">$0</div></div>
+      <div class="es"><div class="es-label">AVAILABLE</div><div class="es-val pos" id="aAvail">$0</div></div>
+    </div>
+
+    <div class="sh" style="margin-top:10px;"><span class="sh-icon">💰</span><div class="sh-title">ALLOCATION</div><div class="sh-badge" id="allocRebalCount">0 rebalances</div></div>
+    <div class="alloc-card" id="allocCard"><div class="loading"></div></div>
+
+    <div class="sh"><span class="sh-icon">📋</span><div class="sh-title">ALLOCATION HISTORY</div></div>
+    <div id="allocHistory"><div class="empty"><div class="empty-icon">📊</div>History builds over time.</div></div>
+  </div>
+
+  <!-- CORRELATION / RISK TAB -->
+  <div class="screen" id="s-correlation">
+    <div class="empire-bar" style="grid-template-columns:repeat(3,1fr);">
+      <div class="es"><div class="es-label">RISK SCORE</div><div class="es-val" id="riskScore">0</div></div>
+      <div class="es"><div class="es-label">SECTORS</div><div class="es-val gold" id="sectorCount">0</div></div>
+      <div class="es"><div class="es-label">LAST CALC</div><div class="es-val cyan" style="font-size:12px;" id="corrLastCalc">—</div></div>
+    </div>
+
+    <div class="sh" style="margin-top:10px;"><span class="sh-icon">🏭</span><div class="sh-title">SECTOR EXPOSURE</div></div>
+    <div class="sector-grid" id="sectorGrid"><div class="loading" style="grid-column:span 2"></div></div>
+
+    <div class="sh"><span class="sh-icon">📉</span><div class="sh-title">SCENARIO ANALYSIS</div></div>
+    <div class="scenario-grid" id="scenarioGrid"><div class="loading" style="grid-column:span 2"></div></div>
+
+    <div class="sh"><span class="sh-icon">⚠️</span><div class="sh-title">CONCENTRATION ALERTS</div></div>
+    <div id="concentrationAlerts"><div class="empty"><div class="empty-icon">✅</div>No concentration risks detected.</div></div>
+  </div>
+
+  <!-- REGISTRY TAB -->
+  <div class="screen" id="s-registry">
+    <div class="empire-bar" style="grid-template-columns:repeat(3,1fr);">
+      <div class="es"><div class="es-label">ACTIVE TICKERS</div><div class="es-val gold" id="regActive">0</div></div>
+      <div class="es"><div class="es-label">CONFLICTS</div><div class="es-val" id="regConflicts">0</div></div>
+      <div class="es"><div class="es-label">PROTECTED</div><div class="es-val cyan">✅</div></div>
+    </div>
+
+    <div class="sh" style="margin-top:10px;"><span class="sh-icon">📡</span><div class="sh-title">TICKER REGISTRY</div><div class="sh-badge">No two bots share a ticker</div></div>
+    <div id="registryList"><div class="empty"><div class="empty-icon">📡</div>No active tickers in registry.</div></div>
+
+    <div class="sh" style="margin-top:10px;"><span class="sh-icon">⚡</span><div class="sh-title">RECENT CONFLICTS BLOCKED</div></div>
+    <div id="conflictList"><div class="empty"><div class="empty-icon">✅</div>No conflicts blocked.</div></div>
+  </div>
+
+  <!-- INTEL TAB -->
+  <div class="screen" id="s-intel">
+    <div id="recoveryPanel" style="display:none;" class="recovery-panel">
+      <div class="recovery-title">🔄 RECOVERY MODE ACTIVE</div>
+      <div class="recovery-desc">All positions sized at 50% until drawdown recovered. ARCHITECT and Meta Brain are coordinating safe return to full operation.</div>
+    </div>
+
+    <div class="sh"><span class="sh-icon">🧠</span><div class="sh-title">COLLECTIVE INTELLIGENCE</div><div class="sh-badge" id="intelCount">0 signals</div></div>
+    <div id="intelList"><div class="loading"></div></div>
+
+    <div class="sh" style="margin-top:10px;"><span class="sh-icon">📖</span><div class="sh-title">ACTIVE NARRATIVES</div></div>
+    <div id="narrativeList"><div class="empty"><div class="empty-icon">📖</div>Narratives build as Intel synthesizes.</div></div>
+
+    <div class="action-row" style="margin-top:10px;">
+      <button class="btn" onclick="runIntel()"><span class="bi">🧠</span> Run Synthesis</button>
+      <button class="btn" onclick="toggleRecovery()"><span class="bi">🔄</span> Recovery Mode</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let ws, snap = {}, killActive = false, recoveryActive = false;
+const WS = location.protocol==='https:' ? `wss://${location.host}` : `ws://${location.host}`;
+
+// Clock
+setInterval(() => { document.getElementById('clock').textContent = new Date().toLocaleTimeString('en-US',{hour12:false}); }, 1000);
+
+function show(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(`t-${tab}`).classList.add('active');
+  document.getElementById(`s-${tab}`).classList.add('active');
+}
+
+function fmt(v) {
+  const n = parseFloat(v)||0;
+  return (n>=0?'+':'') + '$' + Math.abs(n).toFixed(2);
+}
+function fmtK(v) {
+  const n = parseFloat(v)||0;
+  if(Math.abs(n)>=1000) return '$' + (n/1000).toFixed(1) + 'k';
+  return '$' + n.toFixed(0);
+}
+function pClass(v) { return parseFloat(v)>0?'pos':parseFloat(v)<0?'neg':''; }
+function heatColor(h) { return h>=0.8?'#ff3b5c':h>=0.5?'#f5c842':'#00ff9d'; }
+function timeAgo(iso) {
+  if(!iso) return '—';
+  const d=Date.now()-new Date(iso).getTime();
+  if(d<60000) return Math.floor(d/1000)+'s';
+  if(d<3600000) return Math.floor(d/60000)+'m';
+  return Math.floor(d/3600000)+'h';
+}
+function fmtTime(iso) { if(!iso) return '—'; return new Date(iso).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}); }
+
+// Allocation bar colors
+const ALLOC_COLORS = ['#f5c842','#00d4ff','#8b5cf6','#00ff9d','#ff3b5c','#f97316'];
+
+function renderAll(data) {
+  snap = data;
+  const fs = data.fleetState || {};
+  killActive = data.killSwitch?.active || false;
+  recoveryActive = data.recovery?.active || false;
+
+  // Kill button state
+  const kb = document.getElementById('killBtn');
+  kb.className = 'kill-btn' + (killActive ? ' ACTIVE' : '');
+  kb.textContent = killActive ? '✅ RESUME' : '☠️ KILL';
+
+  // Empire bar
+  const ePnl = fs.empirePnl || 0;
+  const eOpen = fs.empireOpenPnl || 0;
+  document.getElementById('ePnl').textContent = fmt(ePnl);
+  document.getElementById('ePnl').className = `es-val ${pClass(ePnl)}`;
+  document.getElementById('eOpen').textContent = fmt(eOpen);
+  document.getElementById('eDeployed').textContent = fmtK(fs.deployedCapital);
+  const dd = fs.empireDrawdown || 0;
+  document.getElementById('eDrawdown').textContent = dd.toFixed(1) + '%';
+  document.getElementById('eDrawdown').className = `es-val ${dd > 10 ? 'neg' : dd > 5 ? 'gold' : 'pos'}`;
+
+  // Status badges
+  const badges = document.getElementById('statusBadges');
+  const badgeItems = [];
+  if(killActive) badgeItems.push(`<span class="badge KILL">☠️ KILL SWITCH ACTIVE</span>`);
+  if(recoveryActive) badgeItems.push(`<span class="badge RECOVERY">🔄 RECOVERY MODE</span>`);
+  badgeItems.push(`<span class="badge" style="background:rgba(139,92,246,.1);color:var(--purple)">REGIME: ${fs.empireRegime||'—'}</span>`);
+  badgeItems.push(`<span class="badge" style="background:rgba(0,212,255,.08);color:var(--cyan)">SYNC #${fs.syncCount||0}</span>`);
+  badges.innerHTML = badgeItems.join('');
+
+  // Fleet grid
+  renderFleet(fs.bots || {});
+
+  // Allocation tab
+  renderAllocation(data.allocation || {}, fs);
+
+  // Correlation tab
+  renderCorrelation(data.correlation || {});
+
+  // Registry tab
+  renderRegistry(data.registry || {});
+
+  // Intel tab
+  renderIntel(data.intelligence || {});
+
+  // Recovery panel
+  document.getElementById('recoveryPanel').style.display = recoveryActive ? 'block' : 'none';
+}
+
+function renderFleet(bots) {
+  const grid = document.getElementById('fleetGrid');
+  const entries = Object.entries(bots);
+  document.getElementById('fleetCount').textContent = `${entries.length} BOTS`;
+
+  if(!entries.length) { grid.innerHTML = '<div class="empty"><div class="empty-icon">🤖</div>No bots in fleet. Add BOT_NAME env vars.</div>'; return; }
+
+  grid.innerHTML = entries.map(([key, bot]) => {
+    const heat = bot.heat || 0;
+    const heatPct = Math.round(heat * 100);
+    const statusClass = bot.status === 'ONLINE' ? 'online' : 'offline';
+    return `<div class="bot-card ${statusClass}">
+      <div class="bot-header">
+        <div class="bot-name">${(bot.displayName||key).toUpperCase()}</div>
+        <div style="display:flex;gap:5px;align-items:center;">
+          <span class="bot-regime">${bot.regime||'—'}</span>
+          <span class="badge ${bot.status||'UNKNOWN'}">${bot.status||'?'}</span>
+        </div>
+      </div>
+      <div class="bot-grid">
+        <div class="bot-stat">
+          <div class="bot-stat-label">P&L</div>
+          <div class="bot-stat-value" style="color:${(bot.pnl||0)>=0?'#00ff9d':'#ff3b5c'};font-size:11px">${fmt(bot.pnl)}</div>
+        </div>
+        <div class="bot-stat">
+          <div class="bot-stat-label">OPEN</div>
+          <div class="bot-stat-value" style="color:#00d4ff;font-size:11px">${fmt(bot.openPnl)}</div>
+        </div>
+        <div class="bot-stat">
+          <div class="bot-stat-label">WIN%</div>
+          <div class="bot-stat-value" style="color:${(bot.winRate||0)>=55?'#00ff9d':(bot.winRate||0)>=45?'#f5c842':'#ff3b5c'}">${(bot.winRate||0).toFixed(0)}%</div>
+        </div>
+        <div class="bot-stat">
+          <div class="bot-stat-label">POS</div>
+          <div class="bot-stat-value">${bot.positionCount||0}</div>
+        </div>
+        <div class="bot-stat">
+          <div class="bot-stat-label">HEAT</div>
+          <div class="bot-stat-value" style="color:${heatColor(heat)}">${heatPct}%</div>
+        </div>
+      </div>
+      <div class="heat-bar"><div class="heat-fill" style="width:${Math.min(heatPct,100)}%;background:${heatColor(heat)}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function renderAllocation(alloc, fs) {
+  document.getElementById('aTotal').textContent = fmtK(fs?.totalCapital);
+  document.getElementById('aDeployed').textContent = fmtK(fs?.deployedCapital);
+  document.getElementById('aAvail').textContent = fmtK(fs?.availableCapital);
+
+  const entries = Object.entries(alloc);
+  const card = document.getElementById('allocCard');
+  if(!entries.length) { card.innerHTML = '<div class="empty">Allocation calculating...</div>'; return; }
+
+  card.innerHTML = entries.map(([key, data], i) => {
+    const color = ALLOC_COLORS[i % ALLOC_COLORS.length];
+    return `<div class="alloc-row">
+      <div class="alloc-name">${(data.displayName||key).split(' ').slice(-1)[0]}</div>
+      <div class="alloc-bar-wrap"><div class="alloc-bar" style="width:${data.pct||0}%;background:${color}"></div></div>
+      <div class="alloc-pct" style="color:${color}">${(data.pct||0).toFixed(1)}%</div>
+      <div class="alloc-cap">${fmtK(data.capital)}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderCorrelation(corr) {
+  const exposure = corr.exposure || {};
+  const risk = corr.riskScore || 0;
+  const scenario = corr.scenarioPnl || {};
+
+  document.getElementById('riskScore').textContent = risk;
+  document.getElementById('riskScore').className = `es-val ${risk>=70?'neg':risk>=40?'gold':'pos'}`;
+  document.getElementById('sectorCount').textContent = Object.keys(exposure).length;
+  document.getElementById('corrLastCalc').textContent = timeAgo(corr.lastCalculated);
+
+  // Sector grid
+  const sectors = Object.entries(exposure).sort((a,b) => b[1]-a[1]).slice(0, 6);
+  const sectorGrid = document.getElementById('sectorGrid');
+  if(!sectors.length) { sectorGrid.innerHTML = '<div class="empty" style="grid-column:span 2">No positions to analyze.</div>'; }
+  else {
+    const sectorColors = ['#f5c842','#00d4ff','#8b5cf6','#00ff9d','#ff3b5c','#f97316'];
+    sectorGrid.innerHTML = sectors.map(([sector, pct], i) => {
+      const color = sectorColors[i % sectorColors.length];
+      const risk = pct > 60 ? '🔴' : pct > 40 ? '🟡' : '🟢';
+      return `<div class="sector-card">
+        <div class="sector-name">${risk} ${sector}</div>
+        <div class="sector-pct" style="color:${color}">${pct}%</div>
+        <div class="sector-bar"><div class="sector-fill" style="width:${Math.min(pct,100)}%;background:${color}"></div></div>
+      </div>`;
+    }).join('');
+  }
+
+  // Scenario grid
+  const scenarioGrid = document.getElementById('scenarioGrid');
+  scenarioGrid.innerHTML = [
+    ['DROP 5%', scenario.drop5, 'neg'],
+    ['DROP 10%', scenario.drop10, 'neg'],
+    ['DROP 20%', scenario.drop20, 'neg'],
+    ['RALLY 5%', scenario.rally5, 'pos']
+  ].map(([label, val, cls]) => `
+    <div class="scenario-card">
+      <div class="scenario-label">${label}</div>
+      <div class="scenario-value ${cls}">${val !== undefined ? fmt(val) : '—'}</div>
+    </div>
+  `).join('');
+
+  // Concentration alerts
+  const alerts = document.getElementById('concentrationAlerts');
+  const highRisk = sectors.filter(([, pct]) => pct > 50);
+  if(!highRisk.length) {
+    alerts.innerHTML = '<div class="empty"><div class="empty-icon">✅</div>Fleet well diversified.</div>';
+  } else {
+    alerts.innerHTML = highRisk.map(([sector, pct]) => `
+      <div class="intel-item WARNING">
+        <div class="intel-msg">⚠️ ${sector.toUpperCase()} concentration at ${pct}% — consider reducing exposure or blocking new entries in this sector</div>
+      </div>
+    `).join('');
+  }
+}
+
+function renderRegistry(reg) {
+  const byBot = reg.byBot || {};
+  const active = reg.activeTickers || 0;
+  const conflicts = (reg.recentConflicts || []).length;
+
+  document.getElementById('regActive').textContent = active;
+  document.getElementById('regConflicts').textContent = conflicts;
+
+  const list = document.getElementById('registryList');
+  const allTickers = Object.entries(byBot).flatMap(([bot, tickers]) =>
+    tickers.map(t => ({ ticker: t.ticker, bot, type: t.type }))
+  );
+
+  if(!allTickers.length) {
+    list.innerHTML = '<div class="empty"><div class="empty-icon">📡</div>No active tickers in registry.</div>';
+  } else {
+    list.innerHTML = allTickers.map(t => `
+      <div class="registry-row">
+        <div class="reg-ticker">${t.ticker}</div>
+        <div class="reg-bot">${t.bot}</div>
+        <span class="reg-type ${t.type}">${t.type}</span>
+      </div>
+    `).join('');
+  }
+
+  const cList = document.getElementById('conflictList');
+  const conflicts2 = reg.recentConflicts || [];
+  if(!conflicts2.length) {
+    cList.innerHTML = '<div class="empty"><div class="empty-icon">✅</div>No conflicts blocked.</div>';
+  } else {
+    cList.innerHTML = conflicts2.map(c => `
+      <div class="intel-item WARNING">
+        <div class="intel-time">${fmtTime(c.time)}</div>
+        <div class="intel-msg">⚡ ${c.ticker} — ${c.requestingBot} blocked, owned by ${c.ownerBot}</div>
+      </div>
+    `).join('');
+  }
+}
+
+function renderIntel(intel) {
+  const signals = intel.signals || [];
+  document.getElementById('intelCount').textContent = `${signals.length} signals`;
+
+  const list = document.getElementById('intelList');
+  if(!signals.length) {
+    list.innerHTML = '<div class="empty"><div class="empty-icon">🧠</div>Intelligence builds as fleet operates.</div>';
+  } else {
+    list.innerHTML = signals.slice(0,20).map(s => `
+      <div class="intel-item ${s.severity||'INFO'}">
+        <div class="intel-time">${fmtTime(s.time)}</div>
+        <div class="intel-msg">${s.message}</div>
+      </div>
+    `).join('');
+  }
+
+  const narratives = intel.narratives || [];
+  const nList = document.getElementById('narrativeList');
+  if(!narratives.length) {
+    nList.innerHTML = '<div class="empty"><div class="empty-icon">📖</div>Narratives build as Intel synthesizes.</div>';
+  } else {
+    nList.innerHTML = narratives.map(n => `
+      <div class="intel-item INFO"><div class="intel-msg">📖 ${n}</div></div>
+    `).join('');
+  }
+}
+
+// Actions
+async function toggleKill() {
+  if(killActive) {
+    if(!confirm('Resume empire operations?')) return;
+    await fetch('/api/killswitch/resume', { method:'POST' });
+  } else {
+    if(!confirm('⚠️ ACTIVATE EMPIRE KILL SWITCH? All bots will be signaled to pause.')) return;
+    await fetch('/api/killswitch/activate', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ reason:'Manual trigger by Jorge' })
+    });
+  }
+  setTimeout(() => fetch('/api/snapshot').then(r=>r.json()).then(renderAll), 1000);
+}
+
+async function forceSync() {
+  await fetch('/api/snapshot').then(r=>r.json()).then(renderAll);
+}
+
+async function runIntel() {
+  show('intel');
+  document.getElementById('intelList').innerHTML = '<div class="loading"></div>';
+  await fetch('/api/intelligence/run', { method:'POST' });
+  setTimeout(() => fetch('/api/snapshot').then(r=>r.json()).then(renderAll), 4000);
+}
+
+async function rebalance() {
+  await fetch('/api/allocation/rebalance');
+  setTimeout(() => fetch('/api/snapshot').then(r=>r.json()).then(renderAll), 500);
+}
+
+async function toggleRecovery() {
+  if(recoveryActive) {
+    await fetch('/api/recovery/deactivate', { method:'POST' });
+  } else {
+    await fetch('/api/recovery/activate', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ reason:'Manual activation' })
+    });
+  }
+  setTimeout(() => fetch('/api/snapshot').then(r=>r.json()).then(renderAll), 500);
+}
+
+// WebSocket
+function connect() {
+  ws = new WebSocket(WS);
+  ws.onopen = () => {
+    document.getElementById('syncDot').style.background = '#00ff9d';
+    fetch('/api/snapshot').then(r=>r.json()).then(renderAll);
+  };
+  ws.onmessage = e => {
+    const msg = JSON.parse(e.data);
+    if(msg.type === 'SNAPSHOT' || msg.type === 'FLEET_UPDATE') renderAll(msg.data);
+    else if(msg.type === 'INTEL_SIGNAL' || msg.type === 'INTEL_UPDATE') {
+      fetch('/api/snapshot').then(r=>r.json()).then(renderAll);
+    }
+  };
+  ws.onclose = () => {
+    document.getElementById('syncDot').style.background = '#ff3b5c';
+    setTimeout(connect, 3000);
+  };
+}
+
+connect();
+</script>
+</body>
+</html>

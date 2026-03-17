@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ARCHITECT">
+<meta name="theme-color" content="#000000">
+<title>NEXUS ARCHITECT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black: #000000;
+  --void: #050508;
+  --deep: #080b12;
+  --navy: #0a0f1e;
+  --panel: #0d1322;
+  --card: #111827;
+  --border: #1a2640;
+  --cyan: #00d4ff;
+  --cyan-dim: rgba(0,212,255,0.15);
+  --cyan-glow: rgba(0,212,255,0.4);
+  --gold: #f5c842;
+  --gold-dim: rgba(245,200,66,0.15);
+  --gold-glow: rgba(245,200,66,0.4);
+  --green: #00ff9d;
+  --green-dim: rgba(0,255,157,0.12);
+  --red: #ff3b5c;
+  --red-dim: rgba(255,59,92,0.12);
+  --purple: #8b5cf6;
+  --silver: #94a3b8;
+  --ghost: #4a5568;
+  --white: #f1f5f9;
+  --font-display: 'Orbitron', monospace;
+  --font-body: 'Rajdhani', sans-serif;
+  --font-mono: 'Share Tech Mono', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--void);
+  color: var(--white);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Grid background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Top navigation */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  background: rgba(5,5,8,0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 16px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: auto;
+}
+
+.nav-logo {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, var(--cyan), var(--purple));
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--black);
+  flex-shrink: 0;
+}
+
+.nav-title {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--cyan);
+}
+
+.nav-subtitle {
+  font-size: 11px;
+  color: var(--ghost);
+  letter-spacing: 1px;
+  font-family: var(--font-mono);
+}
+
+.pulse-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse-glow 2s infinite;
+  flex-shrink: 0;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; box-shadow: 0 0 6px var(--green); }
+  50% { opacity: 0.4; box-shadow: 0 0 2px var(--green); }
+}
+
+.nav-time {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--silver);
+  margin-left: 12px;
+}
+
+/* Tab bar */
+.tabs {
+  position: fixed;
+  top: 56px; left: 0; right: 0;
+  z-index: 99;
+  background: rgba(5,5,8,0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 0 8px;
+}
+.tabs::-webkit-scrollbar { display: none; }
+
+.tab {
+  flex-shrink: 0;
+  padding: 0 16px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--ghost);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.tab:hover { color: var(--silver); }
+.tab.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+.tab-icon { font-size: 14px; }
+
+/* Main content */
+.main {
+  margin-top: 98px;
+  padding: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* Empire header */
+.empire-header {
+  background: linear-gradient(135deg, rgba(0,212,255,0.06) 0%, rgba(139,92,246,0.06) 100%);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.empire-header::before {
+  content: '';
+  position: absolute;
+  top: -1px; left: 20px; right: 20px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+}
+
+.empire-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+.empire-stat {
+  text-align: center;
+}
+
+.empire-stat-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: var(--ghost);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.empire-stat-value {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.empire-stat-value.positive { color: var(--green); }
+.empire-stat-value.negative { color: var(--red); }
+.empire-stat-value.cyan { color: var(--cyan); }
+
+/* Bot cards */
+.bots-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.bot-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  transition: border-color 0.3s;
+}
+
+.bot-card.online { border-left: 3px solid var(--green); }
+.bot-card.offline { border-left: 3px solid var(--red); }
+.bot-card.unknown { border-left: 3px solid var(--ghost); }
+
+.bot-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.bot-name {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--cyan);
+}
+
+.bot-status {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.bot-status.ONLINE { background: var(--green-dim); color: var(--green); }
+.bot-status.OFFLINE { background: var(--red-dim); color: var(--red); }
+.bot-status.UNKNOWN { background: rgba(148,163,184,0.1); color: var(--ghost); }
+
+.bot-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.bot-stat {
+  background: rgba(0,0,0,0.3);
+  border-radius: 6px;
+  padding: 6px;
+  text-align: center;
+}
+
+.bot-stat-label {
+  font-size: 9px;
+  color: var(--ghost);
+  letter-spacing: 1px;
+  font-family: var(--font-mono);
+  margin-bottom: 2px;
+}
+
+.bot-stat-value {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--white);
+}
+
+/* Heat bar */
+.heat-bar {
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.heat-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.5s, background 0.5s;
+}
+
+/* Section headers */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-icon { font-size: 14px; }
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--silver);
+  text-transform: uppercase;
+  flex: 1;
+}
+
+.section-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 2px 6px;
+  background: var(--cyan-dim);
+  color: var(--cyan);
+  border-radius: 4px;
+}
+
+/* Alert list */
+.alert-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+
+.alert-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.alert-item.CRITICAL { border-left: 3px solid var(--red); background: var(--red-dim); }
+.alert-item.WARNING { border-left: 3px solid var(--gold); background: var(--gold-dim); }
+.alert-item.INFO { border-left: 3px solid var(--cyan); }
+
+.alert-time {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ghost);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.alert-msg { color: var(--silver); flex: 1; line-height: 1.4; }
+
+/* Forecast card */
+.forecast-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.forecast-outlook {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.forecast-outlook.BULLISH { color: var(--green); }
+.forecast-outlook.BEARISH { color: var(--red); }
+.forecast-outlook.RANGING { color: var(--gold); }
+.forecast-outlook.VOLATILE { color: var(--purple); }
+
+.forecast-summary {
+  font-size: 13px;
+  color: var(--silver);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.event-list { display: flex; flex-direction: column; gap: 6px; }
+
+.event-item {
+  background: rgba(0,0,0,0.3);
+  border-radius: 6px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.event-impact {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  flex-shrink: 0;
+}
+.event-impact.HIGH { background: var(--red-dim); color: var(--red); }
+.event-impact.MEDIUM { background: var(--gold-dim); color: var(--gold); }
+.event-impact.LOW { background: var(--green-dim); color: var(--green); }
+
+.event-name { font-size: 12px; color: var(--white); flex: 1; }
+.event-date { font-family: var(--font-mono); font-size: 10px; color: var(--ghost); }
+
+/* WAR ROOM */
+.grade-badge {
+  width: 56px; height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+.grade-badge.A { background: var(--green-dim); color: var(--green); border: 1px solid var(--green); }
+.grade-badge.B { background: var(--cyan-dim); color: var(--cyan); border: 1px solid var(--cyan); }
+.grade-badge.C { background: var(--gold-dim); color: var(--gold); border: 1px solid var(--gold); }
+.grade-badge.D { background: var(--red-dim); color: var(--red); border: 1px solid var(--red); }
+
+.report-header { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; }
+.report-meta { flex: 1; }
+.report-title { font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--cyan); letter-spacing: 1px; margin-bottom: 4px; }
+.report-summary { font-size: 12px; color: var(--silver); line-height: 1.5; }
+
+.report-section { margin-bottom: 12px; }
+.report-section-title { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: var(--ghost); font-family: var(--font-mono); text-transform: uppercase; margin-bottom: 6px; }
+.report-items { display: flex; flex-direction: column; gap: 4px; }
+.report-item { font-size: 12px; color: var(--silver); padding: 6px 10px; background: rgba(0,0,0,0.3); border-radius: 6px; line-height: 1.4; }
+.report-item::before { content: '→ '; color: var(--cyan); }
+
+/* MENTOR */
+.mentor-chat { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; max-height: 400px; overflow-y: auto; }
+.mentor-question { background: var(--cyan-dim); border: 1px solid rgba(0,212,255,0.2); border-radius: 10px 10px 2px 10px; padding: 10px 14px; font-size: 13px; color: var(--cyan); align-self: flex-end; max-width: 85%; line-height: 1.4; }
+.mentor-answer { background: var(--card); border: 1px solid var(--border); border-radius: 2px 10px 10px 10px; padding: 12px 14px; font-size: 13px; color: var(--silver); align-self: flex-start; max-width: 90%; line-height: 1.6; }
+.mentor-input-area { display: flex; gap: 8px; }
+.mentor-input { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--white); font-family: var(--font-body); font-size: 13px; outline: none; transition: border-color 0.2s; }
+.mentor-input:focus { border-color: var(--cyan); }
+.mentor-input::placeholder { color: var(--ghost); }
+.btn-send { background: var(--cyan); color: var(--black); border: none; border-radius: 8px; padding: 0 16px; font-family: var(--font-body); font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+.btn-send:hover { opacity: 0.85; }
+.btn-send:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Memory / Calibration */
+.discovery-list { display: flex; flex-direction: column; gap: 6px; }
+.discovery-item { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+.discovery-type { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; color: var(--purple); font-family: var(--font-mono); margin-bottom: 4px; }
+.discovery-insight { font-size: 12px; color: var(--silver); line-height: 1.5; }
+.discovery-time { font-size: 10px; color: var(--ghost); font-family: var(--font-mono); margin-top: 4px; }
+
+/* Calibration table */
+.calib-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.calib-table th { text-align: left; padding: 6px 8px; font-size: 9px; letter-spacing: 1px; color: var(--ghost); font-family: var(--font-mono); border-bottom: 1px solid var(--border); }
+.calib-table td { padding: 8px; border-bottom: 1px solid rgba(26,38,64,0.5); }
+.calib-table tr:last-child td { border-bottom: none; }
+
+/* Sentinel */
+.sentinel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.sentinel-stat { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px; text-align: center; }
+.sentinel-stat-label { font-size: 9px; color: var(--ghost); letter-spacing: 1px; font-family: var(--font-mono); margin-bottom: 4px; }
+.sentinel-stat-value { font-family: var(--font-display); font-size: 18px; font-weight: 700; }
+
+/* Kill switch */
+.kill-zone {
+  background: linear-gradient(135deg, rgba(255,59,92,0.08), rgba(255,59,92,0.04));
+  border: 1px solid rgba(255,59,92,0.3);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  margin-top: 16px;
+}
+.kill-title { font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--red); letter-spacing: 2px; margin-bottom: 6px; }
+.kill-desc { font-size: 11px; color: var(--ghost); margin-bottom: 12px; line-height: 1.5; }
+.btn-kill { background: var(--red); color: var(--white); border: none; border-radius: 8px; padding: 12px 24px; font-family: var(--font-display); font-size: 13px; font-weight: 700; letter-spacing: 2px; cursor: pointer; transition: opacity 0.2s; }
+.btn-kill:hover { opacity: 0.85; }
+
+/* Action buttons */
+.action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.btn-action {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  color: var(--silver);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-action:hover { border-color: var(--cyan); color: var(--cyan); }
+.btn-action .icon { font-size: 16px; }
+
+/* Atlas opportunities */
+.opp-list { display: flex; flex-direction: column; gap: 6px; }
+.opp-item { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+.opp-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.opp-title { font-size: 13px; font-weight: 600; color: var(--white); flex: 1; }
+.opp-dir { font-size: 10px; font-weight: 700; letter-spacing: 1px; padding: 2px 8px; border-radius: 4px; font-family: var(--font-mono); }
+.opp-dir.LONG { background: var(--green-dim); color: var(--green); }
+.opp-dir.SHORT { background: var(--red-dim); color: var(--red); }
+.opp-dir.NEUTRAL { background: rgba(148,163,184,0.1); color: var(--silver); }
+.opp-desc { font-size: 11px; color: var(--ghost); line-height: 1.4; }
+
+/* Approvals */
+.approval-item { background: var(--card); border: 1px solid var(--gold); border-radius: 8px; padding: 12px; margin-bottom: 8px; }
+.approval-title { font-size: 13px; font-weight: 600; color: var(--gold); margin-bottom: 4px; }
+.approval-desc { font-size: 12px; color: var(--silver); margin-bottom: 10px; line-height: 1.4; }
+.approval-actions { display: flex; gap: 8px; }
+.btn-approve { background: var(--green-dim); border: 1px solid var(--green); color: var(--green); border-radius: 6px; padding: 6px 16px; font-family: var(--font-body); font-size: 12px; font-weight: 600; cursor: pointer; }
+.btn-reject { background: var(--red-dim); border: 1px solid var(--red); color: var(--red); border-radius: 6px; padding: 6px 16px; font-family: var(--font-body); font-size: 12px; font-weight: 600; cursor: pointer; }
+
+/* Loading state */
+.loading { text-align: center; padding: 40px 20px; color: var(--ghost); font-family: var(--font-mono); font-size: 12px; letter-spacing: 1px; }
+.loading::before { content: ''; display: block; width: 32px; height: 32px; border: 2px solid var(--border); border-top-color: var(--cyan); border-radius: 50%; margin: 0 auto 12px; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Empty state */
+.empty { text-align: center; padding: 30px 20px; color: var(--ghost); font-size: 12px; line-height: 1.6; }
+.empty-icon { font-size: 32px; margin-bottom: 8px; }
+
+/* Regime pill */
+.regime-pill {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--cyan-dim);
+  color: var(--cyan);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--void); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand">
+    <div class="nav-logo">A</div>
+    <div>
+      <div class="nav-title">NEXUS ARCHITECT</div>
+      <div class="nav-subtitle">EMPIRE INTELLIGENCE COMMAND</div>
+    </div>
+  </div>
+  <div class="pulse-indicator" id="pulseIndicator"></div>
+  <div class="nav-time" id="navTime">--:--:--</div>
+</nav>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('empire')" id="tab-empire">
+    <span class="tab-icon">🌌</span> EMPIRE
+  </div>
+  <div class="tab" onclick="showTab('forecast')" id="tab-forecast">
+    <span class="tab-icon">🔮</span> FORECAST
+  </div>
+  <div class="tab" onclick="showTab('warroom')" id="tab-warroom">
+    <span class="tab-icon">⚔️</span> WAR ROOM
+  </div>
+  <div class="tab" onclick="showTab('mentor')" id="tab-mentor">
+    <span class="tab-icon">👁️</span> MENTOR
+  </div>
+  <div class="tab" onclick="showTab('atlas')" id="tab-atlas">
+    <span class="tab-icon">🗺️</span> ATLAS
+  </div>
+  <div class="tab" onclick="showTab('memory')" id="tab-memory">
+    <span class="tab-icon">🧠</span> MEMORY
+  </div>
+  <div class="tab" onclick="showTab('sentinel')" id="tab-sentinel">
+    <span class="tab-icon">🛡️</span> SENTINEL
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- EMPIRE TAB -->
+  <div class="screen active" id="screen-empire">
+    <div class="empire-header">
+      <div class="empire-grid">
+        <div class="empire-stat">
+          <div class="empire-stat-label">EMPIRE P&L</div>
+          <div class="empire-stat-value" id="empirePnl">$0.00</div>
+        </div>
+        <div class="empire-stat">
+          <div class="empire-stat-label">OPEN P&L</div>
+          <div class="empire-stat-value cyan" id="empireOpenPnl">$0.00</div>
+        </div>
+        <div class="empire-stat">
+          <div class="empire-stat-label">REGIME</div>
+          <div class="empire-stat-value" style="font-size:13px;" id="empireRegime">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <span class="section-icon">🤖</span>
+      <div class="section-title">ACTIVE FLEET</div>
+      <div class="section-badge" id="pulseCount">PULSE #0</div>
+    </div>
+
+    <div class="bots-grid" id="botsGrid">
+      <div class="loading"></div>
+    </div>
+
+    <div class="section-header">
+      <span class="section-icon">🚨</span>
+      <div class="section-title">LIVE ALERTS</div>
+      <div class="section-badge" id="alertCount">0</div>
+    </div>
+    <div class="alert-list" id="alertList">
+      <div class="empty"><div class="empty-icon">✅</div>No active alerts</div>
+    </div>
+
+    <div class="section-header">
+      <span class="section-icon">🔑</span>
+      <div class="section-title">PENDING APPROVALS</div>
+    </div>
+    <div id="approvalsList">
+      <div class="empty"><div class="empty-icon">✅</div>No pending approvals</div>
+    </div>
+
+    <div class="action-grid">
+      <button class="btn-action" onclick="runForecast()"><span class="icon">🔮</span> Run Forecast</button>
+      <button class="btn-action" onclick="runWarRoom()"><span class="icon">⚔️</span> War Room</button>
+      <button class="btn-action" onclick="runAtlas()"><span class="icon">🗺️</span> Scan Atlas</button>
+      <button class="btn-action" onclick="runPulse()"><span class="icon">⚡</span> Force Pulse</button>
+    </div>
+
+    <div class="kill-zone">
+      <div class="kill-title">☠️ EMPIRE KILL SWITCH</div>
+      <div class="kill-desc">Immediately signals all bots to pause.<br>Use only in emergencies.</div>
+      <button class="btn-kill" onclick="triggerKill()">ACTIVATE KILL SWITCH</button>
+    </div>
+  </div>
+
+  <!-- FORECAST TAB -->
+  <div class="screen" id="screen-forecast">
+    <div id="forecastContent">
+      <div class="loading"></div>
+    </div>
+  </div>
+
+  <!-- WAR ROOM TAB -->
+  <div class="screen" id="screen-warroom">
+    <div id="warRoomContent">
+      <div class="loading"></div>
+    </div>
+  </div>
+
+  <!-- MENTOR TAB -->
+  <div class="screen" id="screen-mentor">
+    <div class="forecast-card" style="margin-bottom:12px;">
+      <div style="font-family:var(--font-display);font-size:11px;letter-spacing:2px;color:var(--cyan);margin-bottom:6px;">👁️ MENTOR — JORGE'S VOICE</div>
+      <div style="font-size:12px;color:var(--ghost);line-height:1.6;">Ask MENTOR anything about strategy, risk, vision, or decisions. Jorge's philosophy answers through AI — permanently encoded.</div>
+    </div>
+    <div class="mentor-chat" id="mentorChat">
+      <div class="mentor-answer">Welcome to NEXUS ARCHITECT MENTOR. I carry Jorge Trujillo's voice, values and vision permanently. Ask me anything about strategy, risk, the empire, or any decision you're facing.</div>
+    </div>
+    <div class="mentor-input-area">
+      <input class="mentor-input" id="mentorInput" placeholder="Ask MENTOR anything..." onkeydown="if(event.key==='Enter')sendMentor()">
+      <button class="btn-send" onclick="sendMentor()" id="mentorBtn">ASK</button>
+    </div>
+  </div>
+
+  <!-- ATLAS TAB -->
+  <div class="screen" id="screen-atlas">
+    <div id="atlasContent">
+      <div class="loading"></div>
+    </div>
+  </div>
+
+  <!-- MEMORY TAB -->
+  <div class="screen" id="screen-memory">
+    <div class="section-header">
+      <span class="section-icon">💡</span>
+      <div class="section-title">DISCOVERIES</div>
+    </div>
+    <div class="discovery-list" id="discoveryList">
+      <div class="loading"></div>
+    </div>
+
+    <div class="section-header" style="margin-top:16px;">
+      <span class="section-icon">🎯</span>
+      <div class="section-title">CALIBRATION</div>
+    </div>
+    <div id="calibrationContent">
+      <div class="loading"></div>
+    </div>
+  </div>
+
+  <!-- SENTINEL TAB -->
+  <div class="screen" id="screen-sentinel">
+    <div class="sentinel-grid" id="sentinelGrid">
+      <div class="loading" style="grid-column:span 2"></div>
+    </div>
+    <div class="section-header">
+      <span class="section-icon">📋</span>
+      <div class="section-title">AUDIT LOG</div>
+    </div>
+    <div id="auditLog">
+      <div class="loading"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let ws, state = {}, mentorHistory = [];
+const WS_URL = location.protocol === 'https:' ? `wss://${location.host}` : `ws://${location.host}`;
+
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(`tab-${name}`).classList.add('active');
+  document.getElementById(`screen-${name}`).classList.add('active');
+}
+
+function formatPnl(v) {
+  const n = parseFloat(v) || 0;
+  return (n >= 0 ? '+' : '') + '$' + Math.abs(n).toFixed(2);
+}
+
+function pnlClass(v) {
+  const n = parseFloat(v) || 0;
+  return n > 0 ? 'positive' : n < 0 ? 'negative' : '';
+}
+
+function heatColor(h) {
+  if (h >= 0.8) return '#ff3b5c';
+  if (h >= 0.5) return '#f5c842';
+  return '#00ff9d';
+}
+
+function timeAgo(iso) {
+  if (!iso) return '—';
+  const diff = Date.now() - new Date(iso).getTime();
+  if (diff < 60000) return Math.floor(diff/1000) + 's ago';
+  if (diff < 3600000) return Math.floor(diff/60000) + 'm ago';
+  return Math.floor(diff/3600000) + 'h ago';
+}
+
+function formatTime(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+}
+
+// Clock
+setInterval(() => {
+  document.getElementById('navTime').textContent = new Date().toLocaleTimeString('en-US', { hour12: false });
+}, 1000);
+
+// Render empire
+function renderEmpire(s) {
+  state = s;
+  const es = s.empireState || {};
+
+  // Header stats
+  const pnl = (es.empirePnl || 0) + (es.empireOpenPnl || 0);
+  const pnlEl = document.getElementById('empirePnl');
+  pnlEl.textContent = formatPnl(es.empirePnl || 0);
+  pnlEl.className = `empire-stat-value ${pnlClass(es.empirePnl)}`;
+
+  const openEl = document.getElementById('empireOpenPnl');
+  openEl.textContent = formatPnl(es.empireOpenPnl || 0);
+  openEl.className = `empire-stat-value ${pnlClass(es.empireOpenPnl) || 'cyan'}`;
+
+  document.getElementById('empireRegime').textContent = es.empireRegime || '—';
+  document.getElementById('pulseCount').textContent = `PULSE #${es.pulseCount || 0}`;
+
+  // Bots
+  const bots = es.bots || {};
+  const botNames = { brain: 'BRAIN V3', quantum: 'QUANTUM V3', titan: 'TITAN V1' };
+  const grid = document.getElementById('botsGrid');
+  grid.innerHTML = Object.entries(bots).map(([key, bot]) => {
+    const heat = bot.heat || 0;
+    const heatPct = (heat * 100).toFixed(0);
+    const statusClass = bot.status === 'ONLINE' ? 'online' : bot.status === 'OFFLINE' ? 'offline' : 'unknown';
+    return `<div class="bot-card ${statusClass}">
+      <div class="bot-header">
+        <div class="bot-name">${botNames[key] || key.toUpperCase()}</div>
+        <div class="bot-status ${bot.status || 'UNKNOWN'}">${bot.status || 'UNKNOWN'}</div>
+      </div>
+      <div class="bot-stats">
+        <div class="bot-stat">
+          <div class="bot-stat-label">P&L</div>
+          <div class="bot-stat-value" style="color:${(bot.pnl||0)>=0?'#00ff9d':'#ff3b5c'}">${formatPnl(bot.pnl)}</div>
+        </div>
+        <div class="bot-stat">
+          <div class="bot-stat-label">OPEN</div>
+          <div class="bot-stat-value" style="color:#00d4ff">${formatPnl(bot.openPnl)}</div>
+        </div>
+        <div class="bot-stat">
+          <div class="bot-stat-label">POS</div>
+          <div class="bot-stat-value">${bot.positions || 0}</div>
+        </div>
+        <div class="bot-stat">
+          <div class="bot-stat-label">HEAT</div>
+          <div class="bot-stat-value" style="color:${heatColor(heat)}">${heatPct}%</div>
+        </div>
+      </div>
+      <div class="heat-bar">
+        <div class="heat-fill" style="width:${Math.min(heatPct,100)}%;background:${heatColor(heat)}"></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Alerts
+  renderAlerts(s.alerts || []);
+
+  // Approvals
+  renderApprovals(s.pendingApprovals || []);
+}
+
+function renderAlerts(alertsArr) {
+  document.getElementById('alertCount').textContent = alertsArr.length;
+  const list = document.getElementById('alertList');
+  if (!alertsArr.length) {
+    list.innerHTML = '<div class="empty"><div class="empty-icon">✅</div>No active alerts</div>';
+    return;
+  }
+  list.innerHTML = alertsArr.slice(0, 10).map(a => `
+    <div class="alert-item ${a.severity || 'INFO'}">
+      <div class="alert-time">${formatTime(a.time)}</div>
+      <div class="alert-msg">${a.message}</div>
+    </div>
+  `).join('');
+}
+
+function renderApprovals(approvalsArr) {
+  const el = document.getElementById('approvalsList');
+  const pending = approvalsArr.filter(a => a.status === 'PENDING');
+  if (!pending.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">✅</div>No pending approvals</div>';
+    return;
+  }
+  el.innerHTML = pending.map(a => `
+    <div class="approval-item">
+      <div class="approval-title">🔑 TIER ${a.tier} — ${a.action}</div>
+      <div class="approval-desc">${a.description}</div>
+      <div class="approval-actions">
+        <button class="btn-approve" onclick="approveAction('${a.id}', true)">✅ APPROVE</button>
+        <button class="btn-reject" onclick="approveAction('${a.id}', false)">❌ REJECT</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderForecast(fc) {
+  const el = document.getElementById('forecastContent');
+  if (!fc) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🔮</div>No forecast yet.<br>Tap "Run Forecast" to generate.</div>`;
+    return;
+  }
+  const events = (fc.keyEvents || []).map(e => `
+    <div class="event-item">
+      <div class="event-impact ${e.impact}">${e.impact}</div>
+      <div class="event-name">${e.event}</div>
+      <div class="event-date">${e.date}</div>
+    </div>
+  `).join('');
+
+  const botRecs = Object.entries(fc.botRecommendations || {}).map(([bot, rec]) => `
+    <div class="report-item" style="margin-bottom:4px;">[${bot.toUpperCase()}] ${rec}</div>
+  `).join('');
+
+  el.innerHTML = `
+    <div class="forecast-card">
+      <div class="forecast-outlook ${fc.weekOutlook}">${fc.weekOutlook || '—'}</div>
+      <div style="font-size:11px;color:var(--ghost);font-family:var(--font-mono);margin-bottom:8px;">Confidence: ${fc.confidence || 0}% · Generated ${timeAgo(fc.generatedAt)}</div>
+      <div class="forecast-summary">${fc.summary || ''}</div>
+    </div>
+    ${events.length ? `
+    <div class="section-header"><span class="section-icon">📅</span><div class="section-title">KEY EVENTS</div></div>
+    <div class="event-list" style="margin-bottom:12px;">${events}</div>
+    ` : ''}
+    ${fc.botRecommendations ? `
+    <div class="section-header"><span class="section-icon">🤖</span><div class="section-title">BOT RECOMMENDATIONS</div></div>
+    <div style="margin-bottom:12px;">${botRecs}</div>
+    ` : ''}
+    ${fc.riskEvents?.length ? `
+    <div class="section-header"><span class="section-icon">⚠️</span><div class="section-title">RISK EVENTS</div></div>
+    <div class="report-items" style="margin-bottom:12px;">${(fc.riskEvents||[]).map(r=>`<div class="report-item">${r}</div>`).join('')}</div>
+    ` : ''}
+  `;
+}
+
+function renderWarRoom(report) {
+  const el = document.getElementById('warRoomContent');
+  if (!report) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">⚔️</div>No WAR ROOM report yet.<br>Tap "War Room" to generate.</div>`;
+    return;
+  }
+  el.innerHTML = `
+    <div class="forecast-card">
+      <div class="report-header">
+        <div class="grade-badge ${report.overallGrade || 'B'}">${report.overallGrade || '—'}</div>
+        <div class="report-meta">
+          <div class="report-title">⚔️ WAR ROOM REPORT</div>
+          <div style="font-size:10px;color:var(--ghost);font-family:var(--font-mono);margin-bottom:4px;">Generated ${timeAgo(report.generatedAt)}</div>
+          <div class="report-summary">${report.executiveSummary || ''}</div>
+        </div>
+      </div>
+    </div>
+    <div class="report-section">
+      <div class="report-section-title">✅ WORKING WELL</div>
+      <div class="report-items">${(report.workingWell||[]).map(i=>`<div class="report-item">${i}</div>`).join('')}</div>
+    </div>
+    <div class="report-section">
+      <div class="report-section-title">⚠️ NEEDS WORK</div>
+      <div class="report-items">${(report.needsWork||[]).map(i=>`<div class="report-item">${i}</div>`).join('')}</div>
+    </div>
+    <div class="report-section">
+      <div class="report-section-title">🎯 PRIORITY ACTIONS</div>
+      <div class="report-items">${(report.priorityActions||[]).map(i=>`<div class="report-item">${i}</div>`).join('')}</div>
+    </div>
+    <div class="report-section">
+      <div class="report-section-title">🚀 OPPORTUNITIES</div>
+      <div class="report-items">${(report.opportunities||[]).map(i=>`<div class="report-item">${i}</div>`).join('')}</div>
+    </div>
+    ${report.adjustments?.length ? `
+    <div class="report-section">
+      <div class="report-section-title">⚙️ RECOMMENDED ADJUSTMENTS</div>
+      ${(report.adjustments||[]).map(a=>`<div class="approval-item" style="margin-bottom:6px;">
+        <div class="approval-title">[TIER ${a.tier}] ${a.bot?.toUpperCase()}</div>
+        <div class="approval-desc">${a.action} — ${a.reason}</div>
+      </div>`).join('')}
+    </div>
+    ` : ''}
+  `;
+}
+
+function renderAtlas(atlas) {
+  const el = document.getElementById('atlasContent');
+  if (!atlas || !atlas.opportunities?.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🗺️</div>ATLAS scanning global markets...<br>Auto-updates every 30 minutes.</div>`;
+    return;
+  }
+  const opps = (atlas.opportunities || []).map(o => `
+    <div class="opp-item">
+      <div class="opp-header">
+        <div class="opp-title">${o.title}</div>
+        <div class="opp-dir ${o.direction}">${o.direction}</div>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:4px;">
+        <span style="font-size:10px;font-family:var(--font-mono);color:var(--purple);">${o.sector}</span>
+        <span style="font-size:10px;font-family:var(--font-mono);color:var(--ghost);">·</span>
+        <span style="font-size:10px;font-family:var(--font-mono);color:var(--ghost);">${o.timeframe}</span>
+        <span style="font-size:10px;font-family:var(--font-mono);color:var(--ghost);">·</span>
+        <span style="font-size:10px;font-family:var(--font-mono);color:var(--cyan);">${o.conviction}</span>
+      </div>
+      <div class="opp-desc">${o.description}</div>
+    </div>
+  `).join('');
+
+  const narratives = (atlas.narratives || []).map(n => `<div class="report-item">${n}</div>`).join('');
+
+  el.innerHTML = `
+    <div class="section-header"><span class="section-icon">💡</span><div class="section-title">OPPORTUNITIES</div><div class="section-badge">${atlas.opportunities.length} active</div></div>
+    <div class="opp-list" style="margin-bottom:16px;">${opps}</div>
+    ${narratives ? `
+    <div class="section-header"><span class="section-icon">📖</span><div class="section-title">ACTIVE NARRATIVES</div></div>
+    <div class="report-items">${narratives}</div>
+    ` : ''}
+    <div style="text-align:center;font-size:10px;color:var(--ghost);font-family:var(--font-mono);margin-top:12px;">Last scan: ${timeAgo(atlas.lastScan)}</div>
+  `;
+}
+
+function renderMemory(data) {
+  const discoveries = data.memory?.discoveries || [];
+  const dList = document.getElementById('discoveryList');
+  if (!discoveries.length) {
+    dList.innerHTML = '<div class="empty"><div class="empty-icon">🧠</div>Memory Core building... Trade data accumulates over time.</div>';
+  } else {
+    dList.innerHTML = discoveries.slice(0, 20).map(d => `
+      <div class="discovery-item">
+        <div class="discovery-type">${d.type || 'DISCOVERY'} ${d.ticker ? '· ' + d.ticker : ''}</div>
+        <div class="discovery-insight">${d.insight}</div>
+        <div class="discovery-time">${timeAgo(d.time)}</div>
+      </div>
+    `).join('');
+  }
+
+  // Calibration
+  const insights = data.calibration || [];
+  const cEl = document.getElementById('calibrationContent');
+  if (!insights.length) {
+    cEl.innerHTML = '<div class="empty">Calibration data builds after 5+ closed trades per bot.</div>';
+  } else {
+    cEl.innerHTML = `<table class="calib-table">
+      <thead><tr><th>BOT</th><th>WIN RATE</th><th>AVG CONF</th><th>TRADES</th></tr></thead>
+      <tbody>${insights.map(i => `<tr>
+        <td style="font-family:var(--font-mono);color:var(--cyan)">${i.bot?.toUpperCase()}</td>
+        <td style="color:${i.winRate>=55?'#00ff9d':i.winRate>=45?'#f5c842':'#ff3b5c'}">${i.winRate}%</td>
+        <td style="font-family:var(--font-mono)">${i.avgConfidence}%</td>
+        <td style="font-family:var(--font-mono)">${i.trades}</td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+  }
+}
+
+function renderSentinel(data) {
+  const es = data.empireState || {};
+  const bots = es.bots || {};
+  const online = Object.values(bots).filter(b => b.status === 'ONLINE').length;
+  const grid = document.getElementById('sentinelGrid');
+  grid.innerHTML = `
+    <div class="sentinel-stat">
+      <div class="sentinel-stat-label">BOTS ONLINE</div>
+      <div class="sentinel-stat-value" style="color:${online===3?'#00ff9d':online>0?'#f5c842':'#ff3b5c'}">${online}/3</div>
+    </div>
+    <div class="sentinel-stat">
+      <div class="sentinel-stat-label">PULSE COUNT</div>
+      <div class="sentinel-stat-value" style="color:var(--cyan)">${es.pulseCount || 0}</div>
+    </div>
+    <div class="sentinel-stat">
+      <div class="sentinel-stat-label">ALERTS</div>
+      <div class="sentinel-stat-value" style="color:${(data.alerts||[]).length>0?'#f5c842':'#00ff9d'}">${(data.alerts||[]).length}</div>
+    </div>
+    <div class="sentinel-stat">
+      <div class="sentinel-stat-label">UPTIME</div>
+      <div class="sentinel-stat-value" style="color:var(--silver);font-size:13px">${formatUptime(es.startTime)}</div>
+    </div>
+  `;
+
+  const log = document.getElementById('auditLog');
+  const events = data.alerts || [];
+  if (!events.length) {
+    log.innerHTML = '<div class="empty">No events logged yet.</div>';
+  } else {
+    log.innerHTML = `<div class="alert-list">${events.slice(0, 20).map(a => `
+      <div class="alert-item ${a.severity || 'INFO'}">
+        <div class="alert-time">${formatTime(a.time)}</div>
+        <div class="alert-msg">${a.message}</div>
+      </div>
+    `).join('')}</div>`;
+  }
+}
+
+function formatUptime(startTime) {
+  if (!startTime) return '—';
+  const diff = Date.now() - new Date(startTime).getTime();
+  const h = Math.floor(diff / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  return `${h}h ${m}m`;
+}
+
+// WebSocket
+function connect() {
+  ws = new WebSocket(WS_URL);
+  ws.onopen = () => {
+    document.getElementById('pulseIndicator').style.background = '#00ff9d';
+    fetch('/api/snapshot').then(r => r.json()).then(data => {
+      renderAll(data);
+    });
+  };
+  ws.onmessage = e => {
+    const msg = JSON.parse(e.data);
+    if (msg.type === 'SNAPSHOT') {
+      renderAll(msg.data);
+    } else if (msg.type === 'PULSE_UPDATE') {
+      renderEmpire(msg.data);
+    } else if (msg.type === 'FORECAST_UPDATE') {
+      renderForecast(msg.data);
+    } else if (msg.type === 'WAR_ROOM_UPDATE') {
+      renderWarRoom(msg.data);
+    } else if (msg.type === 'ATLAS_UPDATE') {
+      renderAtlas(msg.data);
+    } else if (msg.type === 'ALERT') {
+      const current = document.getElementById('alertList');
+      // Will refresh on next pulse
+    } else if (msg.type === 'APPROVAL_NEEDED') {
+      fetch('/api/snapshot').then(r=>r.json()).then(d=>renderAll(d));
+    }
+  };
+  ws.onclose = () => {
+    document.getElementById('pulseIndicator').style.background = '#ff3b5c';
+    setTimeout(connect, 3000);
+  };
+}
+
+function renderAll(data) {
+  renderEmpire(data);
+  renderForecast(data.forecast);
+  renderWarRoom(data.warRoom);
+  renderAtlas(data.atlas);
+  renderMemory(data);
+  renderSentinel(data);
+}
+
+// Actions
+async function sendMentor() {
+  const input = document.getElementById('mentorInput');
+  const btn = document.getElementById('mentorBtn');
+  const q = input.value.trim();
+  if (!q) return;
+  input.value = '';
+  btn.disabled = true;
+  btn.textContent = '...';
+
+  const chat = document.getElementById('mentorChat');
+  chat.innerHTML += `<div class="mentor-question">${q}</div>`;
+  chat.innerHTML += `<div class="mentor-answer" id="mentorTyping">...</div>`;
+  chat.scrollTop = chat.scrollHeight;
+
+  try {
+    const resp = await fetch('/api/mentor', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question: q }) });
+    const data = await resp.json();
+    document.getElementById('mentorTyping').textContent = data.answer;
+    document.getElementById('mentorTyping').id = '';
+  } catch (e) {
+    document.getElementById('mentorTyping').textContent = 'MENTOR is unavailable. Check ANTHROPIC_KEY configuration.';
+    document.getElementById('mentorTyping').id = '';
+  }
+
+  chat.scrollTop = chat.scrollHeight;
+  btn.disabled = false;
+  btn.textContent = 'ASK';
+}
+
+async function runForecast() {
+  document.getElementById('forecastContent').innerHTML = '<div class="loading"></div>';
+  showTab('forecast');
+  await fetch('/api/forecast/run', { method: 'POST' });
+  setTimeout(() => fetch('/api/forecast').then(r=>r.json()).then(d=>renderForecast(d.current)), 3000);
+}
+
+async function runWarRoom() {
+  document.getElementById('warRoomContent').innerHTML = '<div class="loading"></div>';
+  showTab('warroom');
+  await fetch('/api/warroom/run', { method: 'POST' });
+  setTimeout(() => fetch('/api/warroom').then(r=>r.json()).then(d=>renderWarRoom(d.reports[0])), 5000);
+}
+
+async function runAtlas() {
+  document.getElementById('atlasContent').innerHTML = '<div class="loading"></div>';
+  showTab('atlas');
+  await fetch('/api/atlas/run', { method: 'POST' });
+  setTimeout(() => fetch('/api/atlas').then(r=>r.json()).then(d=>renderAtlas(d)), 3000);
+}
+
+async function runPulse() {
+  await fetch('/api/snapshot').then(r=>r.json()).then(d=>renderAll(d));
+}
+
+async function approveAction(id, approved) {
+  await fetch(`/api/${approved ? 'approve' : 'reject'}/${id}`, { method: 'POST' });
+  fetch('/api/snapshot').then(r=>r.json()).then(d=>renderAll(d));
+}
+
+async function triggerKill() {
+  if (!confirm('⚠️ CONFIRM: Trigger Empire Kill Switch? This will signal all bots to pause.')) return;
+  await fetch('/api/killswitch', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason: 'Manual trigger by Jorge' }) });
+  alert('Kill switch activated. Monitor bot dashboards for confirmation.');
+}
+
+// Start
+connect();
+</script>
+</body>
+</html>
